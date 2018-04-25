@@ -5,11 +5,11 @@ from scipy import signal
 import matplotlib.pyplot as plt
 
 data= np.array([])
-filename= "FakeGrass.txt"
-dataFile= "data1FakeGrass.txt"
+filename= "FloorRace1.txt"
+dataFile= "data1FloorRace1.txt"
 data= np.loadtxt(filename, delimiter= ',', usecols=range(4))
 
-BUFFER_SIZE= 500 #500 worked
+BUFFER_SIZE= 1000 #1000 worked
 WINDOW_LEFT_SIZE=200
 WINDOW_RIGHT_SIZE= 300
 count=0
@@ -25,14 +25,11 @@ for i in xrange(BUFFER_SIZE, data.shape[0], BUFFER_SIZE):
     peak= signal.argrelextrema(envelope, np.greater)
     window= Window[peak, 0]
     maxim= np.max(window)
-    print window
     if maxim > 0.3:
-        peaks1= np.where(envelope==maxim) 
-        print peaks1
+        peaks1= np.argmax(envelope)
         xpeaks= np.append(xpeaks, peaks1)
         peaks=  np.append(peaks, maxim)
         j= i-BUFFER_SIZE+peaks1
-        np.savetxt(dataFile, data[j-WINDOW_LEFT_SIZE: j+WINDOW_LEFT_SIZE, :], delimiter= ',')
-        #print data[j-WINDOW_LEFT_SIZE: j+WINDOW_LEFT_SIZE, :]
+        np.savetxt(dataFile, data[j-WINDOW_LEFT_SIZE: j+WINDOW_RIGHT_SIZE, :], delimiter= ',')
         plt.plot(data[j-WINDOW_LEFT_SIZE: j+WINDOW_LEFT_SIZE, :])
         plt.show()
