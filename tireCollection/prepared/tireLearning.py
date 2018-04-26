@@ -5,10 +5,10 @@ from scipy import signal
 import matplotlib.pyplot as plt
 
 data= np.array([])
-filename= "FloorRace1.txt"
-dataFile= "data1FloorRace1.txt"
-data= np.loadtxt(filename, delimiter= ',', usecols=range(4))
+filename= "RuggedWood.txt"
+dataFile= open("data1RuggedWood.txt", "a")
 
+data= np.loadtxt(filename, delimiter= ',', usecols=range(4))
 BUFFER_SIZE= 1000 #1000 worked
 WINDOW_LEFT_SIZE=200
 WINDOW_RIGHT_SIZE= 300
@@ -30,6 +30,7 @@ for i in xrange(BUFFER_SIZE, data.shape[0], BUFFER_SIZE):
         xpeaks= np.append(xpeaks, peaks1)
         peaks=  np.append(peaks, maxim)
         j= i-BUFFER_SIZE+peaks1
+        #print data[j-WINDOW_LEFT_SIZE: j+WINDOW_RIGHT_SIZE, :]
         np.savetxt(dataFile, data[j-WINDOW_LEFT_SIZE: j+WINDOW_RIGHT_SIZE, :], delimiter= ',')
         plt.plot(data[j-WINDOW_LEFT_SIZE: j+WINDOW_LEFT_SIZE, :])
         plt.show()
