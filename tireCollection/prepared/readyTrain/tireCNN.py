@@ -22,16 +22,12 @@ FG = np.loadtxt('data1FakeGrass.txt', delimiter= ',')
 RW= np. loadtxt('data1RuggedWood.txt', delimiter= ',')
 RW1= np. loadtxt('data1RuggedWood1.txt', delimiter= ',')
 RF= np.loadtxt('data1FloorRace1.txt', delimiter= ',')
-print "here"
 grass= np.append(FG1, FG, axis=0)
 wood= np.append(RW, RW1, axis=0)
 floor= RF
 
 labels= np.array([])
 data= np.array([])
-print grass.shape[0]
-print wood.shape[0]
-print floor.shape[0]
 for i in xrange(0, grass.shape[0], WINDOW_SIZE):
     newD= grass[i:i+WINDOW_SIZE, :].flatten
     data= np.append(data, newD)
@@ -47,4 +43,4 @@ for i in xrange(0, floor.shape[0], WINDOW_SIZE):
     data= np.append(data, newD)
     labels= np.append(labels, FLOOR_LABEL) 
 
-print len(labels)
+print labels
