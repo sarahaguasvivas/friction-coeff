@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 import numpy as np
 import pandas
-
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
@@ -43,4 +42,6 @@ for i in xrange(0, floor.shape[0], WINDOW_SIZE):
     data= np.append(data, newD)
     labels= np.append(labels, FLOOR_LABEL) 
 
-print labels
+print "number of training samples= " + str(len(labels))
+
+
