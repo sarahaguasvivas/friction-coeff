@@ -5,8 +5,8 @@ from scipy import signal
 import matplotlib.pyplot as plt
 
 data= np.array([])
-filename= "TireDataCarpet.txt"
-dataFile= open("data1Carpet.txt", "a")
+filename= "Carpet1.txt"
+dataFile= open("data1Carpet1.txt", "a")
 
 data= np.loadtxt(filename, delimiter= ',', usecols=range(4))
 BUFFER_SIZE= 700 #1000 worked

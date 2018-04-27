@@ -12,15 +12,16 @@ from sklearn.pipeline import Pipeline
 WINDOW_SIZE= 500
 NUM_SENSORS= 4
 ## Defining ground truth:
-GRASS_LABEL= 0.35
-WOOD_LABEL= 0.17
-FLOOR_LABEL= 0.05
-
+GRASS_LABEL= 0.16 
+WOOD_LABEL= 0.09
+FLOOR_LABEL= 0.08
+CARPET_LABEL= 0.08
 FG1= np.loadtxt('data1FakeGrass1.txt', delimiter= ',')
 FG = np.loadtxt('data1FakeGrass.txt', delimiter= ',')
 RW= np. loadtxt('data1RuggedWood.txt', delimiter= ',')
 RW1= np. loadtxt('data1RuggedWood1.txt', delimiter= ',')
 RF= np.loadtxt('data1FloorRace1.txt', delimiter= ',')
+CA= np.loadtxt('data1Carpet1.txt', delimiter= ',')
 
 # Defining base model
 def baseline_model():
@@ -34,6 +35,7 @@ def baseline_model():
 grass= np.append(FG1, FG, axis=0)
 wood= np.append(RW, RW1, axis=0)
 floor= RF
+carpet= CA
 
 labels= np.array([])
 data= np.empty((WINDOW_SIZE*NUM_SENSORS, 1))
@@ -51,6 +53,11 @@ for i in xrange(0, floor.shape[0], WINDOW_SIZE):
     newD= floor[i:i+WINDOW_SIZE, :].flatten()
     data= np.column_stack([data, newD])
     labels= np.append(labels, FLOOR_LABEL)
+
+for i in xrange(0, carpet.shape[0], WINDOW_SIZE):
+    newD= carpet[i:i+WINDOW_SIZE, :].flatten()
+    data= np.column_stack([data, newD])
+    labels= np.append(labels, CARPET_LABEL)
 
 print "number of training samples= " + str(len(labels))
 print data[:, 1:].shape
