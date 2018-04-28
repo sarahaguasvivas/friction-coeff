@@ -8,6 +8,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
+from sklearn.externals import joblib
 
 WINDOW_SIZE= 500
 NUM_SENSORS= 4
@@ -29,6 +30,20 @@ def baseline_model():
     model.add(Dense(13, input_dim=WINDOW_SIZE*NUM_SENSORS, kernel_initializer= 'normal', activation= 'relu'))
     model.add(Dense(1, kernel_initializer= 'normal'))
     model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
+def save_model(model):
+    # saving model
+    json_model = model.model.to_json()
+    open('model_architecture.json', 'w').write(json_model)
+    # saving weights
+    model.model.save_weights('model_weights.h5', overwrite=True)
+
+def load_model():
+    # loading model
+    model = model_from_json(open('model_architecture.json').read())
+    model.load_weights('model_weights.h5')
+    model.compile(loss='categorical_crossentropy', optimizer='adam')
     return model
 
 # Preparing the data: 
@@ -66,5 +81,7 @@ np.random.seed(seed)
 estimator= KerasRegressor(build_fn=baseline_model, epochs= 100, batch_size=5, verbose=1)
 kfold= KFold(n_splits=10, random_state=seed)
 results= cross_val_score(estimator, data[:, 1:].T, labels, cv= kfold)
-print "Results: " + str(results.mean) + " " + str(results.std()) + "MSE"
+print "Results: " + str(results.mean) + " " + str(results.std()) + " MSE"
 
+estimator.fit(data[:, 1:].T, labels)
+save_model(estimator)
