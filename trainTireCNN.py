@@ -19,20 +19,20 @@ def conv2d(x, W, b, strides=1):
 	return tf.nn.relu(x) 
 
 def conv_net(x, weights, biases):
-	conv1= conv2d(x, weights['wc1'], biases['bc1'])
+	conv1= conv2d(x, weights['W_0'], biases['bc1'])
 	conv1= maxpool2d(conv1, k=2)
-	conv2= conv2d(conv1, weights['wc2'], biases['bc1'])
+	conv2= conv2d(conv1, weights['W_1'], biases['bc1'])
 	conv2= maxpool2d(conv2, k=2)
 
-	conv3= conv2d(conv2, weights['wc3'], biases['bc3'])
+	conv3= conv2d(conv2, weights['W_3'], biases['bc3'])
 	conv3= maxpool2d(conv3, k=2)
 	
 	# Fully connected layer:
-	fc1= tf.reshape(conv3, [-1, weights['wd1'].get_shape().as_list()[0]])
-	fc1= tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
+	fc1= tf.reshape(conv3, [-1, weights['W_fc'].get_shape().as_list()[0]])
+	fc1= tf.add(tf.matmul(fc1, weights['W_fc']), biases['b_fc'])
 	fc1= tf.nn.relu(fc1)
 
-	out= tf.add(tf.matmul(fc1, weights['out']), biases['out'])
+	out= tf.add(tf.matmul(fc1, weights['W_sm']), biases['b_sm'])
 	return out
 
 	
