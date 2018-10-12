@@ -72,7 +72,7 @@ data1= tf.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE+ 1], [WINDOW_SIZE, 4, -
 y= np.zeros((data1.shape[2], 1))
 
 data2= tf.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1],[WINDOW_SIZE, 4, -1])
-y= np.stack((y, np.ones((data2.shape[2], 1))),  axis=0)
+y= np.vstack((y, np.ones((data2.shape[2], 1))))
 
 pred= conv_net(x, weights,biases)
 cost=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
