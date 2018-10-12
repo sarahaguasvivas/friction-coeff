@@ -6,15 +6,14 @@ import tensorflow as tf
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0" #for training on gpu
 
-def conv1d(x, W, b, strides=1):
-	# Conv1D wrapper, with bias and relu activation
+def conv1d(x, W, b, strides=1): # Conv1D wrapper, with bias and relu activation
 	x = tf.nn.conv1d(x, W, strides=[1, strides, strides, 1], padding='SAME')
 	x = tf.nn.bias_add(x, b)
 	return tf.nn.relu(x) 
 
 def conv2d(x, W, b, strides=1):
 	# Conv2D wrapper, with bias and relu activation
-	x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
+	x = tf.nn.conv2d(x, W, strides=[1, strides, strides], padding='SAME')
 	x = tf.nn.bias_add(x, b)
 	return tf.nn.relu(x) 
 
@@ -42,39 +41,41 @@ def maxpool2d(x, k=2):
 
 training_iters= 200
 learning_rate= 1e-3
-batch_size= 128
+batch_size= 4 
 n_classes= 3
 
 weights = {
     'W_0': tf.get_variable('W0', shape=(20,4,1,12), initializer=tf.contrib.layers.xavier_initializer()), 
-    'W_1': tf.get_variable('W1', shape=(8,10,12,15), initializer=tf.contrib.layers.xavier_initializer()), 
-    'W_2': tf.get_variable('W2', shape=(5, 15,15, 20), initializer=tf.contrib.layers.xavier_initializer()), 
-    'W_3': tf.get_variable('W3', shape=(3, 20,20, 25), initializer=tf.contrib.layers.xavier_initializer()), 
-    'W_fc': tf.get_variable('W4', shape=(200,25), initializer=tf.contrib.layers.xavier_initializer()), 
-    'W_sm': tf.get_variable('W5', shape=(25,n_classes), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_1': tf.get_variable('W1', shape=(8,10,12,12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_2': tf.get_variable('W2', shape=(5, 15,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_3': tf.get_variable('W3', shape=(3, 20,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_fc': tf.get_variable('W4', shape=(200,12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_sm': tf.get_variable('W5', shape=(12,n_classes), initializer=tf.contrib.layers.xavier_initializer()), 
 }
 
 biases = {
     'bc1': tf.get_variable('B0', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
-    'bc2': tf.get_variable('B1', shape=(15), initializer=tf.contrib.layers.xavier_initializer()),
-    'bc3': tf.get_variable('B2', shape=(20), initializer=tf.contrib.layers.xavier_initializer()),
-    'bc4': tf.get_variable('B3', shape=(20), initializer=tf.contrib.layers.xavier_initializer()),
-    'b_fc': tf.get_variable('B4', shape=(25), initializer=tf.contrib.layers.xavier_initializer()),
-    'b_sm': tf.get_variable('B5', shape=(25), initializer=tf.contrib.layers.xavier_initializer()),
+    'bc2': tf.get_variable('B1', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
+    'bc3': tf.get_variable('B2', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
+    'bc4': tf.get_variable('B3', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
+    'b_fc': tf.get_variable('B4', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
+    'b_sm': tf.get_variable('B5', shape=(n_classes), initializer=tf.contrib.layers.xavier_initializer()),
 }
 WINDOW_SIZE=200/4
-x= tf.placeholder("float", [None, WINDOW_SIZE, 4, 1])
-y= tf.placeholder("float", [None, n_classes])
+x= tf.placeholder(tf.float32, [None, WINDOW_SIZE, 4, 1])
+y= tf.placeholder(tf.int32, [None, n_classes])
 
 data1 = pd.read_csv('data1.csv')
 data2 = pd.read_csv('data2.csv')
+
 data1= tf.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE+ 1], [WINDOW_SIZE, 4, -1])
-y= np.zeros((data1.shape[2], 1))
+y= tf.zeros([data1.shape[2], 1], tf.int32)
 
 data2= tf.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1],[WINDOW_SIZE, 4, -1])
-y= np.vstack((y, np.ones((data2.shape[2], 1))))
-
-pred= conv_net(x, weights,biases)
+y= tf.concat([y, tf.ones([data2.shape[2], 1], tf.int32)], 0)
+x= tf.concat([data1, data2], 2)
+x= tf.cast(x, tf.float32)
+pred= conv_net(x, weights, biases)
 cost=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
 optimizer= tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
