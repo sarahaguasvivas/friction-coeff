@@ -45,7 +45,7 @@ batch_size= 4
 n_classes= 3
 
 weights = {
-    'W_0': tf.get_variable('W0', shape=(20,4,1,12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_0': tf.get_variable('W0', shape=(50,4,148,12), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_1': tf.get_variable('W1', shape=(8,10,12,12), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_2': tf.get_variable('W2', shape=(5, 15,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_3': tf.get_variable('W3', shape=(3, 20,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
