@@ -7,7 +7,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0" #for training on gpu
 
 def conv1d(x, W, b, strides=1): # Conv1D wrapper, with bias and relu activation
-	x = tf.nn.conv1d(x, W, strides=[1, strides, strides, 1], padding='SAME')
+	x = tf.nn.conv1d(x, W, strides=[1, strides, strides], padding='SAME')
 	x = tf.nn.bias_add(x, b)
 	return tf.nn.relu(x) 
 
@@ -41,11 +41,13 @@ def maxpool2d(x, k=2):
 
 training_iters= 200
 learning_rate= 1e-3
-batch_size= 4 
+NUM_ADC= 4
 n_classes= 3
+WINDOW_SIZE=200/4
+batch_size=WINDOW_SIZE
 
 weights = {
-    'W_0': tf.get_variable('W0', shape=(50,4,148,12), initializer=tf.contrib.layers.xavier_initializer()), 
+    'W_0': tf.get_variable('W0', shape=(50,4,148), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_1': tf.get_variable('W1', shape=(8,10,12,12), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_2': tf.get_variable('W2', shape=(5, 15,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
     'W_3': tf.get_variable('W3', shape=(3, 20,12, 12), initializer=tf.contrib.layers.xavier_initializer()), 
@@ -61,9 +63,8 @@ biases = {
     'b_fc': tf.get_variable('B4', shape=(12), initializer=tf.contrib.layers.xavier_initializer()),
     'b_sm': tf.get_variable('B5', shape=(n_classes), initializer=tf.contrib.layers.xavier_initializer()),
 }
-WINDOW_SIZE=200/4
-x= tf.placeholder(tf.float32, [None, WINDOW_SIZE, 4, 1])
-y= tf.placeholder(tf.int32, [None, n_classes])
+x= tf.placeholder(tf.float32, [WINDOW_SIZE, NUM_ADC])
+y= tf.placeholder(tf.int32, n_classes)
 
 data1 = pd.read_csv('data1.csv')
 data2 = pd.read_csv('data2.csv')
