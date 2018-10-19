@@ -104,12 +104,11 @@ def cnn_model_fn(features, labels, mode):
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
  
   # Add evaluation metrics (for EVAL mode)
-  
+ 
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
-  return tf.estimator.EstimatorSpec(
-      mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+  return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
   
 def main(unused_argv):
   # Load training and eval data
@@ -117,9 +116,8 @@ def main(unused_argv):
   train_labels = np.load('terrains_train_labels.npy') 
   train_labels= train_labels.astype(int)
   train_labels= np.array(train_labels).reshape(-1)  
-#  train_data= train_data.transpose((2, 0, 1))
+
   eval_data = np.load('terrains_test_features.npy') 
-#  eval_data = eval_data.transpose((2, 0, 1))
   eval_labels =np.load('terrains_test_labels.npy') 
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
@@ -141,17 +139,17 @@ def main(unused_argv):
       batch_size=2,
       num_epochs=None,
       shuffle=True)
-  print("HERE******") 
+   
   terrains_classifier.train(
       input_fn=train_input_fn,
       steps=20000,
       hooks=[logging_hook])
-  print("EVAL************")
+  
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": eval_data},
       y=eval_labels,
-      num_epochs=2,
+      num_epochs=1,
       shuffle=False)
   eval_results = terrains_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
