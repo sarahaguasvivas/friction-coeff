@@ -9,7 +9,8 @@
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
 #  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS, #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  distributed under the License is distributed on an "AS IS" BASIS, 
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 """Convolutional Neural Network Estimator for MNIST, built with tf.layers."""
@@ -52,10 +53,11 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 14, 14, 64]
   conv2 = tf.layers.conv2d(
       inputs=pool1,
-      filters=36,
-      kernel_size=[2, 2],
+      filters=64,
+      kernel_size=[5, 5],
       padding="same",
       activation=tf.nn.relu)
+
   # Pooling Layer #2
   # Second max pooling layer with a 2x2 filter and stride of 2
   # Input Tensor Shape: [batch_size, 14, 14, 64]
@@ -85,20 +87,20 @@ def cnn_model_fn(features, labels, mode):
       # `logging_hook`.
       "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
   }
-
+  
   if mode == tf.estimator.ModeKeys.PREDICT:
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
   # Calculate Loss (for both TRAIN and EVAL modes)
   loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits))
+
   # Configure the Training Op (for TRAIN mode)
-  
   if mode == tf.estimator.ModeKeys.TRAIN:
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-3)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
-  print("add evaluation metrics")
+ 
   # Add evaluation metrics (for EVAL mode)
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
@@ -118,6 +120,7 @@ def main(unused_argv):
   eval_labels =np.load('terrains_test_labels.npy') 
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
+
 # Create the Estimator
   terrains_classifier = tf.estimator.Estimator(
       model_fn=cnn_model_fn, model_dir="/tmp/terrains_convnet_model")
@@ -159,11 +162,11 @@ if __name__ == "__main__":
   data2 = np.genfromtxt('data2.csv', delimiter=',')
   data1= np.array(data1)
   data2= np.array(data2)
-  data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (WINDOW_SIZE, 4, -1))
+  data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
   y= np.zeros((data1.shape[2], 1)) 
-  data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (WINDOW_SIZE, 4, -1))
+  data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
   y= np.vstack((y, np.ones((data2.shape[2], 1))))
-  x= np.concatenate((data1, data2), axis=2)
+  x= np.concatenate((data1, data2), axis=0)
 
   # Generating Random Training Samples:
   indexes= random.sample(range(x.shape[2]),int(train*int(x.shape[2])))
