@@ -117,9 +117,9 @@ def main(unused_argv):
   train_labels = np.load('terrains_train_labels.npy') 
   train_labels= train_labels.astype(int)
   train_labels= np.array(train_labels).reshape(-1)  
-  train_data= train_data.transpose((2, 0, 1))
+#  train_data= train_data.transpose((2, 0, 1))
   eval_data = np.load('terrains_test_features.npy') 
-  eval_data = eval_data.transpose((2, 0, 1))
+#  eval_data = eval_data.transpose((2, 0, 1))
   eval_labels =np.load('terrains_test_labels.npy') 
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
@@ -141,17 +141,17 @@ def main(unused_argv):
       batch_size=2,
       num_epochs=None,
       shuffle=True)
-  
+  print("HERE******") 
   terrains_classifier.train(
       input_fn=train_input_fn,
       steps=20000,
       hooks=[logging_hook])
-
+  print("EVAL************")
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": eval_data},
       y=eval_labels,
-      num_epochs=1,
+      num_epochs=2,
       shuffle=False)
   eval_results = terrains_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
@@ -167,21 +167,20 @@ if __name__ == "__main__":
   data1= np.array(data1)
   data2= np.array(data2)
   data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
-  y= np.zeros((data1.shape[2], 1)) 
+
+  y= np.zeros((data1.shape[0], 1)) 
   data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
-  y= np.vstack((y, np.ones((data2.shape[2], 1))))
+  y= np.vstack((y, np.ones((data2.shape[0], 1))))
   x= np.concatenate((data1, data2), axis=0)
 
   # Generating Random Training Samples:
-  indexes= random.sample(range(x.shape[2]),int(train*int(x.shape[2])))
-  missing= list(set(range(x.shape[2])) - set(indexes))
+  indexes= random.sample(range(x.shape[0]),int(train*int(x.shape[0])))
+  missing= list(set(range(x.shape[0])) - set(indexes))
 
-  data_train=x[:, :, indexes]
+  data_train=x[indexes, :, :]
   label_train=y[indexes]
-  data_test= x[:, :, missing]
-
+  data_test= x[missing,:, :]
   label_test= y[missing]  
-
   np.save('terrains_train_features', data_train)
   np.save('terrains_train_labels', label_train)
   np.save('terrains_test_features', data_test)
