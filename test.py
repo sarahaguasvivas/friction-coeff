@@ -162,13 +162,13 @@ if __name__ == "__main__":
 
   data1 = np.genfromtxt('data1.csv', delimiter=',')
   data2 = np.genfromtxt('data2.csv', delimiter=',')
-  data1= np.array(data1)
-  data2= np.array(data2)
+  data1 = np.array(data1)
+  data2 = np.array(data2)
   data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
 
   y= np.zeros((data1.shape[0], 1)) 
   data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
-  y= np.vstack((y, np.ones((data2.shape[0], 1))))
+  y= np.concatenate((y, np.ones((data2.shape[0], 1))), axis=0)
   x= np.concatenate((data1, data2), axis=0)
 
   # Generating Random Training Samples:
@@ -179,6 +179,7 @@ if __name__ == "__main__":
   label_train=y[indexes]
   data_test= x[missing,:, :]
   label_test= y[missing]  
+
   np.save('terrains_train_features', data_train)
   np.save('terrains_train_labels', label_train)
   np.save('terrains_test_features', data_test)
