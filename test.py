@@ -30,7 +30,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
-  input_layer = tf.reshape(features["x"], [-1, 50, 4, 1])
+  input_layer = tf.reshape(features["x"], [-1, 25, 4, 1])
   # Convolutional Layer #1
   # Computes 32 features using a 5x5 filter with ReLU activation.
   # Padding is added to preserve width and height.
@@ -88,11 +88,11 @@ def cnn_model_fn(features, labels, mode):
       # `logging_hook`.
       "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
   }
-
+  logits= tf.transpose(logits)
   if mode == tf.estimator.ModeKeys.PREDICT:
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
   # Calculate Loss (for both TRAIN and EVAL modes)
-  logits= tf.transpose(logits)
+
   loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
   # Configure the Training Op (for TRAIN mode)
@@ -108,6 +108,7 @@ def cnn_model_fn(features, labels, mode):
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
+
   return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 def main(unused_argv):
@@ -156,7 +157,7 @@ def main(unused_argv):
 
 
 if __name__ == "__main__":
-  WINDOW_SIZE= int(200/4)
+  WINDOW_SIZE= 25
 
   train= 0.8
 
