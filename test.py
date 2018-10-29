@@ -164,10 +164,10 @@ if __name__ == "__main__":
   data2 = np.genfromtxt('concrete_oct_26.csv', delimiter=',')
   data1 = np.array(data1)
   data2 = np.array(data2)
-  data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
+  data1 = np.reshape(data1, (-1, WINDOW_SIZE, 4))
 
   y= np.zeros((data1.shape[0], 1))
-  data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
+  data2 = np.reshape(data2, (-1, WINDOW_SIZE, 4))
   y= np.concatenate((y, np.ones((data2.shape[0], 1))), axis=0)
   x= np.concatenate((data1, data2), axis=0)
 
