@@ -9,7 +9,7 @@
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
 #  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS, 
+#  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
@@ -24,7 +24,7 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 import random
-tf.logging.set_verbosity(tf.logging.INFO) 
+tf.logging.set_verbosity(tf.logging.INFO)
 
 def cnn_model_fn(features, labels, mode):
   # Input Layer
@@ -38,7 +38,7 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 28, 28, 32]
   conv1 = tf.layers.conv2d(
       inputs=input_layer,
-      filters=32, 
+      filters=32,
       kernel_size=[2, 2],
       padding="same",
       activation=tf.nn.relu)
@@ -76,7 +76,7 @@ def cnn_model_fn(features, labels, mode):
   # Add dropout operation; 0.6 probability that element will be kept
   dropout = tf.layers.dropout(
       inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
-  
+
   # Input Tensor Shape: [batch_size, 1024]
   # Output Tensor Shape: [batch_size, 10]
   logits = tf.layers.dense(inputs=dropout, units=2)
@@ -92,33 +92,33 @@ def cnn_model_fn(features, labels, mode):
   if mode == tf.estimator.ModeKeys.PREDICT:
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
   # Calculate Loss (for both TRAIN and EVAL modes)
-  logits= tf.transpose(logits) 
+  logits= tf.transpose(logits)
   loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
-  
+
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-3) 
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-3)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
- 
+
   # Add evaluation metrics (for EVAL mode)
- 
+
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
   return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
-  
+
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load('terrains_train_features.npy') 
-  train_labels = np.load('terrains_train_labels.npy') 
+  train_data = np.load('terrains_train_features.npy')
+  train_labels = np.load('terrains_train_labels.npy')
   train_labels= train_labels.astype(int)
-  train_labels= np.array(train_labels).reshape(-1)  
+  train_labels= np.array(train_labels).reshape(-1)
 
-  eval_data = np.load('terrains_test_features.npy') 
-  eval_labels =np.load('terrains_test_labels.npy') 
+  eval_data = np.load('terrains_test_features.npy')
+  eval_labels =np.load('terrains_test_labels.npy')
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
 
@@ -131,7 +131,7 @@ def main(unused_argv):
   tensors_to_log = {"probabilities": "softmax_tensor"}
   logging_hook = tf.train.LoggingTensorHook(
       tensors=tensors_to_log, every_n_iter=50)
- 
+
   # Train the model
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
@@ -139,12 +139,12 @@ def main(unused_argv):
       batch_size=2,
       num_epochs=None,
       shuffle=True)
-   
+
   terrains_classifier.train(
       input_fn=train_input_fn,
       steps=20000,
       hooks=[logging_hook])
-  
+
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": eval_data},
@@ -160,13 +160,13 @@ if __name__ == "__main__":
 
   train= 0.8
 
-  data1 = np.genfromtxt('data1.csv', delimiter=',')
-  data2 = np.genfromtxt('data2.csv', delimiter=',')
+  data1 = np.genfromtxt('carpet_oct_26.csv', delimiter=',')
+  data2 = np.genfromtxt('concrete_oct_26.csv', delimiter=',')
   data1 = np.array(data1)
   data2 = np.array(data2)
   data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
 
-  y= np.zeros((data1.shape[0], 1)) 
+  y= np.zeros((data1.shape[0], 1))
   data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (-1, WINDOW_SIZE, 4))
   y= np.concatenate((y, np.ones((data2.shape[0], 1))), axis=0)
   x= np.concatenate((data1, data2), axis=0)
@@ -178,12 +178,12 @@ if __name__ == "__main__":
   data_train=x[indexes, :, :]
   label_train=y[indexes]
   data_test= x[missing,:, :]
-  label_test= y[missing]  
+  label_test= y[missing]
 
   np.save('terrains_train_features', data_train)
   np.save('terrains_train_labels', label_train)
   np.save('terrains_test_features', data_test)
   np.save('terrains_test_labels', label_test)
-  
+
   tf.app.run()
 

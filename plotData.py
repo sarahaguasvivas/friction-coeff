@@ -29,6 +29,7 @@ for i in range(len(list_data)):
 #plt.scatter(range(len(dataData)), [float(i) for i in dataData])
 #plt.show()
 data= np.reshape(dataData, (-1, 4))
+np.savetxt(str(sys.argv[1])+'.csv', data,delimiter=',')
 print(data.shape)
 plt.plot(range(data.shape[0]), data[:, 0])
 plt.plot(range(data.shape[0]), data[:, 1])
