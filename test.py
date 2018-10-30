@@ -39,7 +39,7 @@ def cnn_model_fn(features, labels, mode):
   conv1 = tf.layers.conv2d(
       inputs=input_layer,
       filters=32,
-      kernel_size=[2, 2],
+      kernel_size=[5, 5],
       padding="same",
       activation=tf.nn.relu)
   # Pooling Layer #1
@@ -54,7 +54,7 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 14, 14, 64]
   conv2 = tf.layers.conv2d(
       inputs=pool1,
-      filters=32,
+      filters=64,
       kernel_size=[5, 5],
       padding="same",
       activation=tf.nn.relu)
@@ -67,7 +67,8 @@ def cnn_model_fn(features, labels, mode):
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
-  pool2_flat = tf.reshape(pool2, [-1, 1])
+  pool2_flat = tf.reshape(pool2, [-1, pool2.shape[1]*pool2.shape[2]*pool2.shape[3]])
+
   # Dense Layer
   # Densely connected layer with 1024 neurons
   # Input Tensor Shape: [batch_size, 7 * 7 * 64]
@@ -88,16 +89,15 @@ def cnn_model_fn(features, labels, mode):
       # `logging_hook`.
       "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
   }
-  logits= tf.transpose(logits)
+
   if mode == tf.estimator.ModeKeys.PREDICT:
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
   # Calculate Loss (for both TRAIN and EVAL modes)
-
   loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-3)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
@@ -109,7 +109,8 @@ def cnn_model_fn(features, labels, mode):
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
 
-  return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+  return tf.estimator.EstimatorSpec(mode=mode, loss=loss,
+          eval_metric_ops=eval_metric_ops)
 
 def main(unused_argv):
   # Load training and eval data
@@ -117,15 +118,16 @@ def main(unused_argv):
   train_labels = np.load('terrains_train_labels.npy')
   train_labels= train_labels.astype(int)
   train_labels= np.array(train_labels).reshape(-1)
-
+  train_labels= np.asarray(train_labels, dtype= np.int32)
   eval_data = np.load('terrains_test_features.npy')
   eval_labels =np.load('terrains_test_labels.npy')
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
+  eval_labels= np.asarray(eval_labels, dtype=np.int32)
 
 # Create the Estimator
   terrains_classifier = tf.estimator.Estimator(
-      model_fn=cnn_model_fn, model_dir="/tmp/terrains_convnet_model")
+      model_fn=cnn_model_fn, model_dir="terrains_convnet_model")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
@@ -137,7 +139,7 @@ def main(unused_argv):
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
       y=train_labels,
-      batch_size=2,
+      batch_size=10,
       num_epochs=None,
       shuffle=True)
 
@@ -165,20 +167,21 @@ if __name__ == "__main__":
   data2 = np.genfromtxt('concrete_oct_26.csv', delimiter=',')
   data1 = np.array(data1)
   data2 = np.array(data2)
-  data1 = np.reshape(data1, (-1, WINDOW_SIZE, 4))
-
-  y= np.zeros((data1.shape[0], 1))
-  data2 = np.reshape(data2, (-1, WINDOW_SIZE, 4))
-  y= np.concatenate((y, np.ones((data2.shape[0], 1))), axis=0)
+  data1 = np.reshape(data1, (WINDOW_SIZE*  4, -1))
+  data1= np.transpose(data1)
+  data2 = np.reshape(data2, (WINDOW_SIZE*  4, -1))
+  data2= np.transpose(data2)
   x= np.concatenate((data1, data2), axis=0)
-
+  y= np.zeros((data1.shape[0], 1))
+  y= np.concatenate((y, np.ones((data2.shape[0], 1))), axis=0)
+  y= np.asarray(y, dtype= np.int32)
   # Generating Random Training Samples:
   indexes= random.sample(range(x.shape[0]),int(train*int(x.shape[0])))
   missing= list(set(range(x.shape[0])) - set(indexes))
 
-  data_train=x[indexes, :, :]
+  data_train=x[indexes, :]
   label_train=y[indexes]
-  data_test= x[missing,:, :]
+  data_test= x[missing,:]
   label_test= y[missing]
 
   np.save('terrains_train_features', data_train)
