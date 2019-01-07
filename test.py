@@ -68,7 +68,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 7, 7, 64]
   # Output Tensor Shape: [batch_size, 7 * 7 * 64]
   pool2_flat = tf.reshape(pool2, [-1, pool2.shape[1]*pool2.shape[2]*pool2.shape[3]])
-
+  print(pool2_flat.shape)
   # Dense Layer
   # Densely connected layer with 1024 neurons
   # Input Tensor Shape: [batch_size, 7 * 7 * 64]
@@ -104,7 +104,6 @@ def cnn_model_fn(features, labels, mode):
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
   # Add evaluation metrics (for EVAL mode)
-
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
@@ -139,7 +138,7 @@ def main(unused_argv):
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
       y=train_labels,
-      batch_size=10,
+      batch_size=100,
       num_epochs=None,
       shuffle=True)
 
@@ -161,7 +160,7 @@ def main(unused_argv):
 if __name__ == "__main__":
   WINDOW_SIZE= 25
 
-  train= 0.8
+  train= 0.7
 
   data1 = np.genfromtxt('carpet_oct_26.csv', delimiter=',')
   data2 = np.genfromtxt('concrete_oct_26.csv', delimiter=',')
