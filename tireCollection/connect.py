@@ -6,7 +6,7 @@ import numpy as np
 BUFFER_SIZE= 32000
 filename= open('tireDataFloorRace.txt', 'w')
 sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('192.168.50.131', 5005))
+sock.connect(('192.168.1.7', 5005))
 print "connection with ESP established"
 try:
     while True:

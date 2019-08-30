@@ -159,7 +159,7 @@ def main(unused_argv):
 if __name__ == "__main__":
   WINDOW_SIZE= 25
 
-  train= 0.7
+  train= 0.9
 
   data1 = np.genfromtxt('carpet_oct_26.csv', delimiter=',')
   data2 = np.genfromtxt('concrete_oct_26.csv', delimiter=',')

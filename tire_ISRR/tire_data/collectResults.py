@@ -5,10 +5,8 @@ import sys
 
 IP_1= '192.168.1.3'
 IP_2= '192.168.1.4'
-IP_tire= '192.168.1.5'
-
-IP_1_home= '10.0.0.8'
-IP_2_home= '10.0.0.4'
+IP_tire= '192.168.1.7'
+IP_other= '192.168.1.9'
 
 BUFFER_SIZE= 700
 
@@ -24,7 +22,7 @@ try:
             str1= str(len(data)/4) + "f"
             data= struct.unpack(str1, data)
             listl+= list(data)
-            print(data)
+
 except KeyboardInterrupt:
     print("saving data file")
     filef= open(filename, 'w')

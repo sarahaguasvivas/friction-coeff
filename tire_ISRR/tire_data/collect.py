@@ -2,24 +2,28 @@
 import struct
 import socket
 import sys
-import os
 
-IP_5= '192.168.1.5'
+IP_1= '192.168.1.3'
+IP_2= '192.168.1.4'
+IP_tire= '192.168.1.7'
 
-BUFFER_SIZE= 32000
+IP_1_home= '10.0.0.8'
+IP_2_home= '10.0.0.4'
 
-filename= os.path.join('data', str(sys.argv[1])+'.csv')
+BUFFER_SIZE= 1000
+
+filename= str(sys.argv[1])+'.csv'
 sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((IP_5, 5005))
+sock.connect((IP_tire, 5005))
 print("Connection established!")
 try:
     listl=[]
     while (1):
         data= sock.recv(BUFFER_SIZE)
-        str1= str(len(data)/4) + "f"
-        data= struct.unpack(str1, data)
-        listl+= list(data)
-
+        if len(str(data))>0:
+            str1= str(len(data)/4) + "f"
+            data= struct.unpack(str1, data)
+            listl+= list(data)
 except KeyboardInterrupt:
     print("saving data file")
     filef= open(filename, 'w')
