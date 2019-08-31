@@ -10,7 +10,7 @@ import sys
 listFiles= os.listdir('data')
 print(listFiles)
 NUM_ADC= 4
-WINDOW_SIZE= 200
+WINDOW_SIZE= 100
 
 Data= pd.DataFrame()
 

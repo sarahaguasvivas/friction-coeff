@@ -26,7 +26,7 @@ import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-WINDOW_SIZE= 200
+WINDOW_SIZE= 100
 NUM_ADC= 4
 NUM_CLASSES= 2
 sess = tf.Session()
@@ -61,11 +61,11 @@ def model_function(data, labels, test, lab_test):
     model.add(Dense(10, activation='relu'))
     model.add(Dense(2, activation='softmax', kernel_regularizer= regularizers.l2(0.01)))
 
-    model.compile(loss='categorical_crossentropy',
+    model.compile(loss='binary_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
-    history= model.fit(data, labels, batch_size=10, nb_epoch=10000,  verbose=1, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=5, nb_epoch=100,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print("Confusion Matrix:")
     print(confusion_matrix(np.argmax(predictions, axis=1), np.argmax(lab_test, axis=1)))
