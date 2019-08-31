@@ -62,14 +62,15 @@ def model_function(data, labels, test, lab_test):
     #model.add(MaxPooling1D(5))
     model.add(Flatten())
     model.add(Dense(50, activation='relu'))
-    model.add(Dense(20, activation='relu'))
+    model.add(Dense(10, activation='relu'))
+    #model.add(Dense(10, activation='relu'))
     model.add(Dense(2, activation='softmax', kernel_regularizer= regularizers.l2(0.01)))
 
     model.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
-    history= model.fit(data, labels, batch_size=100, nb_epoch=3000,  verbose=1, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=10, nb_epoch=1000,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print("Confusion Matrix:")
     print(confusion_matrix(np.argmax(predictions, axis=1), np.argmax(lab_test, axis=1)))
@@ -84,9 +85,9 @@ def model_function(data, labels, test, lab_test):
         ii+=1
 
 if __name__== '__main__':
-    train=0.70
+    train=0.7
 
-    data= np.genfromtxt('tire_ISRR/tire_data/tire_data_August_28.csv', delimiter=',')
+    data= np.genfromtxt('tire_ISRR/tire_data/tire_data_August_31.csv', delimiter=',')
     print(data.shape)
     x= data[:, :-1]
     y= np.zeros((data.shape[0], NUM_CLASSES))
